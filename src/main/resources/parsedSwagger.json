@@ -1,0 +1,163 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "VDC-Logging-Agent",
+    "description": "Monitoring and Logging agent for the DITAS SDK.",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/v1/trace": {
+      "post": {
+        "summary": "registeres a span in zipkin or updates an exsisting one",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "traceMessage",
+            "schema": {
+              "$ref": "#/definitions/TraceMessage"
+            },
+            "example": {
+              "traceid": "bs8ds5fg45hs45s",
+              "parentSpanId": "955gs84fs5dd2r",
+              "spanId": "1q94rsh432d038dfd",
+              "operation": "update",
+              "message": "update cassandra data"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "200 response"
+          }
+        }
+      }
+    },
+    "/v1/close": {
+      "post": {
+        "summary": "closes a span in zipkin",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "traceMessage",
+            "schema": {
+              "$ref": "#/definitions/TraceMessage"
+            },
+            "example": {
+              "traceid": "bs8ds5fg45hs45s",
+              "parentSpanId": "955gs84fs5dd2r",
+              "spanId": "1q94rsh432d038dfd",
+              "operation": "close",
+              "message": "trace finished"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "200 response    "
+          }
+        }
+      }
+    },
+    "/v1/log": {
+      "post": {
+        "summary": "forwards a log message to elastic search, automatilcy adding type and index information",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "logMessage",
+            "schema": {
+              "$ref": "#/definitions/LogMessage"
+            },
+            "example": {
+              "timestamp": "2018-06-20T12:06:56",
+              "value": "all fine"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "200 response    "
+          }
+        }
+      }
+    },
+    "/v1/meter": {
+      "post": {
+        "summary": "forwards a meter message to elastic search, automatilcy adding type and index information",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "meterMessage",
+            "schema": {
+              "$ref": "#/definitions/MeterMessage"
+            },
+            "example": {
+              "timestamp": "2018-06-20T12:06:56",
+              "value": 122.66,
+              "unit": "m/s",
+              "kind": "speedmeter"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "200 response   "
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "TraceMessage": {
+      "type": "object",
+      "properties": {
+        "traceid": {
+          "type": "string"
+        },
+        "parentSpanId": {
+          "type": "string"
+        },
+        "spanId": {
+          "type": "string"
+        },
+        "operation": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        }
+      }
+    },
+    "MeterMessage": {
+      "type": "object",
+      "properties": {
+        "timestamp": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "value": {
+          "type": "number",
+          "format": "double"
+        },
+        "unit": {
+          "type": "string"
+        },
+        "kind": {
+          "type": "string"
+        }
+      }
+    },
+    "LogMessage": {
+      "type": "object",
+      "properties": {
+        "timestamp": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "value": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}
