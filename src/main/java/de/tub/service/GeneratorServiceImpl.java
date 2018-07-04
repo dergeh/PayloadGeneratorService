@@ -2,8 +2,6 @@ package de.tub.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
-import de.tub.Util.RequestDeserializer;
 import de.tub.model.BodyObject;
 import de.tub.model.Metainfo;
 import de.tub.model.RichRequest;
@@ -11,12 +9,11 @@ import de.tub.model.SimpleRequest;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 @Service
 public class GeneratorServiceImpl implements GeneratorService {
-    private ObjectMapper mapper = new ObjectMapper();
 
     @Override
     public List<RichRequest> generateRequests(BodyObject body) {
@@ -48,11 +45,21 @@ public class GeneratorServiceImpl implements GeneratorService {
     }
 
     private List<SimpleRequest> generateSimpleRequests(JsonNode blueprint) throws IOException {
-        String read=blueprint.toString();
-        SimpleModule module = new SimpleModule();
-        module.addDeserializer(SimpleRequest[].class, new RequestDeserializer(SimpleRequest[].class));
-        mapper.registerModule(module);
-        return Arrays.asList(mapper.readValue(read, SimpleRequest[].class));
+        List<SimpleRequest> requests = new LinkedList<>();
+        JsonNode paths = blueprint.get("paths");
+        Iterator<String> stringIterator = paths.fieldNames();
+        while (stringIterator.hasNext()) {
+            SimpleRequest request = new SimpleRequest();
+            String url = stringIterator.next();
+            request.setUrl(url);
+            String method = paths.get(url).fieldNames().next();
+            request.setMethod(method);
+            JsonNode body=paths.get(url).findValue("example");
+            request.setBody(body);
+            requests.add(request);
+        }
+       return requests;
+
     }
 
 }
